@@ -1,7 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/database.dart';
 import 'package:mobile/display_picture_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/recipe.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -57,7 +59,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             final image = await _controller.takePicture();
 
             // Здесь вы можете добавить ваш запрос на бэкенд
-            String apiUrl = "example.com/upload";
+            String apiUrl = "http://localhost:8000/uploadfile";
 
             var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
             request.files
@@ -66,10 +68,6 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             var response = await request.send();
 
             if (response.statusCode == 200) {
-              // Успешный ответ от сервера
-              // print('Image uploaded successfully');
-
-              // Отобразить сообщение об успешной загрузке
               // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -78,6 +76,18 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
               );
 
+              // Сохранение в базу данных при успешной загрузке изображения
+              final database = await $FloorAppDatabase
+                  .databaseBuilder('app_database.db')
+                  .build();
+
+              // Создаем экземпляр сущности Recipe
+              final recipe = Recipe(response: 'Ваш текст рецепта');
+
+              // Вставляем рецепт в базу данных
+              await database.recipeDao.insertRecipe(recipe);
+
+              // Переход к следующему экрану
               // ignore: use_build_context_synchronously
               Navigator.push(
                 context,
@@ -87,10 +97,6 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
               );
             } else {
-              // Обработка ошибки
-              // print(
-              //     'Failed to upload image. Status code: ${response.statusCode}');
-
               // Отобразить сообщение об ошибке
               // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
