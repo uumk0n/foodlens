@@ -38,6 +38,10 @@ dependencies:
   http: ^1.1.2
   image_picker: ^1.0.5
   camera: ^0.10.5+7
+  floor: ^1.4.2
+  floor_generator: ^1.4.2
+  build_runner: ^2.4.7
+  sqflite: ^2.3.0
 
 dev_dependencies:
   flutter_test:

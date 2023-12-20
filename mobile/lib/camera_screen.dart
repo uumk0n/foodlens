@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:mobile/database.dart';
+import 'package:mobile/display_data_screen.dart';
+import 'package:mobile/recipe.dart';
 import 'package:mobile/take_picture_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -7,13 +10,13 @@ import 'package:http/http.dart' as http;
 class CameraScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
 
-  CameraScreen({required this.cameras});
+  const CameraScreen({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Выберите действие'),
+        title: const Text('Выберите действие'),
       ),
       body: Center(
         child: Column(
@@ -28,9 +31,9 @@ class CameraScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Сфотографировать'),
+              child: const Text('Сфотографировать'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 final picker = ImagePicker();
@@ -38,11 +41,7 @@ class CameraScreen extends StatelessWidget {
                     await picker.pickImage(source: ImageSource.gallery);
 
                 if (pickedFile != null) {
-                  // Обработка выбранного изображения из галереи
-                  print('Выбрано из галереи: ${pickedFile.path}');
-
-                  // Здесь вы можете добавить ваш запрос на бэкенд для изображения из галереи
-                  String apiUrl = "https://example.com/upload";
+                  String apiUrl = "http://localhost:8000/uploadfile";
 
                   var request =
                       http.MultipartRequest('POST', Uri.parse(apiUrl));
@@ -52,16 +51,31 @@ class CameraScreen extends StatelessWidget {
                   var response = await request.send();
 
                   if (response.statusCode == 200) {
-                    // Успешный ответ от сервера
-                    print('Image uploaded successfully');
-                  } else {
-                    // Обработка ошибки
-                    print(
-                        'Failed to upload image. Status code: ${response.statusCode}');
+                    final database = await $FloorAppDatabase
+                        .databaseBuilder('app_database.db')
+                        .build();
+
+                    // Создаем экземпляр сущности Recipe
+                    final recipe = Recipe(response: 'Ваш текст рецепта');
+
+                    // Вставляем рецепт в базу данных
+                    await database.recipeDao.insertRecipe(recipe);
                   }
                 }
               },
-              child: Text('Загрузить из галереи'),
+              child: const Text('Загрузить из галереи'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DisplayDataScreen(),
+                  ),
+                );
+              },
+              child: const Text('Показать данные из базы'),
             ),
           ],
         ),

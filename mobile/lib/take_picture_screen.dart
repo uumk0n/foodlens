@@ -6,9 +6,10 @@ import 'package:http/http.dart' as http;
 class TakePictureScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
 
-  TakePictureScreen({required this.cameras});
+  const TakePictureScreen({super.key, required this.cameras});
 
   @override
+  // ignore: library_private_types_in_public_api
   _TakePictureScreenState createState() => _TakePictureScreenState();
 }
 
@@ -36,7 +37,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Сфотографировать'),
+        title: const Text('Сфотографировать'),
       ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
@@ -44,7 +45,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
           if (snapshot.connectionState == ConnectionState.done) {
             return CameraPreview(_controller);
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -66,16 +67,18 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
 
             if (response.statusCode == 200) {
               // Успешный ответ от сервера
-              print('Image uploaded successfully');
+              // print('Image uploaded successfully');
 
               // Отобразить сообщение об успешной загрузке
+              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Изображение успешно загружено!'),
                   duration: Duration(seconds: 2),
                 ),
               );
 
+              // ignore: use_build_context_synchronously
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -85,22 +88,23 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
               );
             } else {
               // Обработка ошибки
-              print(
-                  'Failed to upload image. Status code: ${response.statusCode}');
+              // print(
+              //     'Failed to upload image. Status code: ${response.statusCode}');
 
               // Отобразить сообщение об ошибке
+              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Ошибка при загрузке изображения'),
                   duration: Duration(seconds: 2),
                 ),
               );
             }
           } catch (e) {
-            print('Error taking picture or uploading: $e');
+            // print('Error taking picture or uploading: $e');
           }
         },
-        child: Icon(Icons.camera),
+        child: const Icon(Icons.camera),
       ),
     );
   }
