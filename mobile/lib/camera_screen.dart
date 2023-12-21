@@ -6,11 +6,24 @@ import 'package:mobile/recipe.dart';
 import 'package:mobile/take_picture_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:translator/translator.dart';
 
 class CameraScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
 
   const CameraScreen({super.key, required this.cameras});
+
+  Future<String> translateToRussian(String textToTranslate) async {
+    final translator = GoogleTranslator();
+
+    final translation = await translator.translate(
+      textToTranslate,
+      from: 'en',
+      to: 'ru',
+    );
+
+    return translation.text;
+  }
 
   @override
   Widget build(BuildContext context) {
