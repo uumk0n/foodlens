@@ -6,7 +6,7 @@ class Recipe {
   final int? id;
 
   final String response; // Textual response
-  final String? imagePath; // File path to the image
+  final String imagePath; // File path to the image
 
-  Recipe({this.id, required this.response, this.imagePath});
+  Recipe({this.id, required this.response, required this.imagePath});
 }

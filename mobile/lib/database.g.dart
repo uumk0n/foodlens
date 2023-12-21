@@ -10,14 +10,12 @@ part of 'database.dart';
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  // ignore: library_private_types_in_public_api
   static _$AppDatabaseBuilder databaseBuilder(String name) =>
       _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  // ignore: library_private_types_in_public_api
   static _$AppDatabaseBuilder inMemoryDatabaseBuilder() =>
       _$AppDatabaseBuilder(null);
 }
@@ -87,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Recipe` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `response` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Recipe` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `response` TEXT NOT NULL, `imagePath` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -109,8 +107,11 @@ class _$RecipeDao extends RecipeDao {
         _recipeInsertionAdapter = InsertionAdapter(
             database,
             'Recipe',
-            (Recipe item) =>
-                <String, Object?>{'id': item.id, 'response': item.response});
+            (Recipe item) => <String, Object?>{
+                  'id': item.id,
+                  'response': item.response,
+                  'imagePath': item.imagePath
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -123,8 +124,10 @@ class _$RecipeDao extends RecipeDao {
   @override
   Future<List<Recipe>> getAllRecipes() async {
     return _queryAdapter.queryList('SELECT * FROM Recipe',
-        mapper: (Map<String, Object?> row) =>
-            Recipe(id: row['id'] as int?, response: row['response'] as String));
+        mapper: (Map<String, Object?> row) => Recipe(
+            id: row['id'] as int?,
+            response: row['response'] as String,
+            imagePath: row['imagePath'] as String));
   }
 
   @override

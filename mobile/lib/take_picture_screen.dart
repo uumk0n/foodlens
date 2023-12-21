@@ -141,11 +141,11 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
 
               if (translatedText.isNotEmpty) {
                 final database = await $FloorAppDatabase
-                    .databaseBuilder('app_database.db')
+                    .databaseBuilder('mobile_dataBase.db')
                     .build();
 
-                final recipe =
-                    Recipe(response: translatedText, imagePath: image.path);
+                final recipe = Recipe(
+                    response: translatedText, imagePath: image.path.toString());
                 await database.recipeDao.insertRecipe(recipe);
               }
 

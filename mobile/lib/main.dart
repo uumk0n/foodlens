@@ -4,6 +4,6 @@ import 'package:mobile/food_lens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  List<CameraDescription> cameras = await availableCameras();
+  List<CameraDescription> cameras = new List.empty(growable: true);
   runApp(mobile(cameras: cameras));
 }

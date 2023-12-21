@@ -131,11 +131,12 @@ class CameraScreen extends StatelessWidget {
                         await translateToRussian(lines.join('\n'));
                     if (translatedText.isNotEmpty) {
                       final database = await $FloorAppDatabase
-                          .databaseBuilder('app_database.db')
+                          .databaseBuilder('mobile_dataBase.db')
                           .build();
 
                       final recipe = Recipe(
-                          response: translatedText, imagePath: pickedFile.path);
+                          response: translatedText,
+                          imagePath: pickedFile.path.toString());
                       await database.recipeDao.insertRecipe(recipe);
                       // ignore: use_build_context_synchronously
                       _showResultDialog(context, translatedText);

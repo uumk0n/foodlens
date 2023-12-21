@@ -32,10 +32,21 @@ class _DisplayDataScreenState extends State<DisplayDataScreen> {
               itemCount: recipes.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(recipes[index].response),
-                  subtitle: recipes[index].imagePath != null
-                      ? Image.file(File(recipes[index].imagePath!))
+                  leading: recipes[index].imagePath != null
+                      ? Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              scale: 1.0,
+                              fit: BoxFit.contain,
+                              image: FileImage(File(recipes[index].imagePath!)),
+                            ),
+                          ),
+                        )
                       : null,
+                  title: Text(recipes[index].response),
                 );
               },
             );
@@ -47,7 +58,7 @@ class _DisplayDataScreenState extends State<DisplayDataScreen> {
 
   Future<List<Recipe>> _loadDataFromDatabase() async {
     final database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+        await $FloorAppDatabase.databaseBuilder('mobile_dataBase.db').build();
     return database.recipeDao.getAllRecipes();
   }
 }
