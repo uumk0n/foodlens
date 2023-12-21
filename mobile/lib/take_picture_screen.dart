@@ -4,11 +4,13 @@ import 'package:mobile/database.dart';
 import 'package:mobile/display_picture_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/recipe.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:logging/logging.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
 
-  const TakePictureScreen({super.key, required this.cameras});
+  const TakePictureScreen({Key? key, required this.cameras}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -18,6 +20,7 @@ class TakePictureScreen extends StatefulWidget {
 class _TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  final log = Logger('ExampleLogger');
 
   @override
   void initState() {
@@ -58,7 +61,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
 
             final image = await _controller.takePicture();
 
-            // Здесь вы можете добавить ваш запрос на бэкенд
+            // Add your backend URL
             String apiUrl = "http://localhost:8000/uploadfile";
 
             var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
@@ -66,6 +69,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 .add(await http.MultipartFile.fromPath('image', image.path));
 
             var response = await request.send();
+            String responseText = await response.stream.bytesToString();
 
             if (response.statusCode == 200) {
               // ignore: use_build_context_synchronously
@@ -76,18 +80,42 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
               );
 
-              // Сохранение в базу данных при успешной загрузке изображения
+              if (responseText.isNotEmpty) {
+                // ignore: curly_braces_in_flow_control_structures
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Response: $responseText',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                );
+
+                // Add a link at the bottom
+                GestureDetector(
+                  onTap: () {
+                    // Open the website when the link is tapped
+                    // ignore: deprecated_member_use
+                    launch('https://www.povarenok.ru/recipes/find');
+                  },
+                  child: const Text(
+                    'Visit our website',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                );
+              }
+
+              // Save to the database on successful image upload
               final database = await $FloorAppDatabase
                   .databaseBuilder('app_database.db')
                   .build();
 
-              // Создаем экземпляр сущности Recipe
               final recipe = Recipe(response: 'Ваш текст рецепта');
-
-              // Вставляем рецепт в базу данных
               await database.recipeDao.insertRecipe(recipe);
 
-              // Переход к следующему экрану
+              // Navigate to the next screen
               // ignore: use_build_context_synchronously
               Navigator.push(
                 context,
@@ -97,7 +125,6 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
               );
             } else {
-              // Отобразить сообщение об ошибке
               // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -107,7 +134,8 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
               );
             }
           } catch (e) {
-            // print('Error taking picture or uploading: $e');
+            // Handle the exception if any
+            log.shout('Error taking picture or uploading: $e');
           }
         },
         child: const Icon(Icons.camera),

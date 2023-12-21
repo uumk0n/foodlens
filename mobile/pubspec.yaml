@@ -43,6 +43,8 @@ dependencies:
   build_runner: ^2.4.7
   sqflite: ^2.3.0
   translator: ^0.1.0+7
+  url_launcher: ^6.2.2
+  logging: ^1.2.0
 
 dev_dependencies:
   flutter_test:
