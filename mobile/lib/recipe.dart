@@ -5,8 +5,8 @@ class Recipe {
   @PrimaryKey(autoGenerate: true)
   final int? id;
 
-  final String
-      response; // Здесь предполагается, что response - это строка, а не файл, например.
+  final String response; // Textual response
+  final String? imagePath; // File path to the image
 
-  Recipe({this.id, required this.response});
+  Recipe({this.id, required this.response, this.imagePath});
 }

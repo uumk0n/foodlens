@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mobile/database.dart';
 import 'package:mobile/recipe.dart';
 
 class DisplayDataScreen extends StatefulWidget {
-  const DisplayDataScreen({super.key});
+  const DisplayDataScreen({Key? key}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -15,7 +17,7 @@ class _DisplayDataScreenState extends State<DisplayDataScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Данные из базы данных'),
+        title: const Text('История запросов'),
       ),
       body: FutureBuilder<List<Recipe>>(
         future: _loadDataFromDatabase(),
@@ -31,6 +33,9 @@ class _DisplayDataScreenState extends State<DisplayDataScreen> {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(recipes[index].response),
+                  subtitle: recipes[index].imagePath != null
+                      ? Image.file(File(recipes[index].imagePath!))
+                      : null,
                 );
               },
             );

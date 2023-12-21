@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/database.dart';
-import 'package:mobile/display_picture_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/recipe.dart';
 import 'package:translator/translator.dart';
@@ -22,6 +21,51 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   final log = Logger('ExampleLogger');
+
+  // ignore: unused_element
+  Future<void> _showResultDialog(
+      BuildContext context, String translatedText) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Результат'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Ингредиенты: $translatedText',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () {
+                  // Open the website when the link is tapped
+                  // ignore: deprecated_member_use
+                  launch('https://www.povarenok.ru/recipes/find');
+                },
+                child: const Text(
+                  'Visit our website',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<String> translateToRussian(String textToTranslate) async {
     final translator = GoogleTranslator();
@@ -96,49 +140,17 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
               String translatedText = await translateToRussian(responseText);
 
               if (translatedText.isNotEmpty) {
-                // ignore: curly_braces_in_flow_control_structures
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Response: $translatedText',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                );
+                final database = await $FloorAppDatabase
+                    .databaseBuilder('app_database.db')
+                    .build();
 
-                // Add a link at the bottom
-                GestureDetector(
-                  onTap: () {
-                    // Open the website when the link is tapped
-                    // ignore: deprecated_member_use
-                    launch('https://www.povarenok.ru/recipes/find');
-                  },
-                  child: const Text(
-                    'Visit our website',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                );
+                final recipe =
+                    Recipe(response: translatedText, imagePath: image.path);
+                await database.recipeDao.insertRecipe(recipe);
               }
 
-              // Save to the database on successful image upload
-              final database = await $FloorAppDatabase
-                  .databaseBuilder('app_database.db')
-                  .build();
-
-              final recipe = Recipe(response: translatedText);
-              await database.recipeDao.insertRecipe(recipe);
-
-              // Navigate to the next screen
               // ignore: use_build_context_synchronously
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      DisplayPictureScreen(imagePath: image.path),
-                ),
-              );
+              _showResultDialog(context, translatedText);
             } else {
               // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
