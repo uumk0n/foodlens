@@ -75,7 +75,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             final image = await _controller.takePicture();
 
             // Add your backend URL
-            String apiUrl = "http://localhost:8000/uploadfile";
+            String apiUrl = "http://159.223.230.93:5000/uploadfile";
 
             var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
             request.files

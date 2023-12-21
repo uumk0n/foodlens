@@ -55,7 +55,7 @@ class CameraScreen extends StatelessWidget {
                     await picker.pickImage(source: ImageSource.gallery);
 
                 if (pickedFile != null) {
-                  String apiUrl = "http://localhost:8000/uploadfile";
+                  String apiUrl = "http://159.223.230.93:5000/uploadfile";
 
                   var request =
                       http.MultipartRequest('POST', Uri.parse(apiUrl));
