@@ -4,6 +4,7 @@ import 'package:mobile/database.dart';
 import 'package:mobile/display_picture_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/recipe.dart';
+import 'package:translator/translator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:logging/logging.dart';
 
@@ -21,6 +22,18 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   final log = Logger('ExampleLogger');
+
+  Future<String> translateToRussian(String textToTranslate) async {
+    final translator = GoogleTranslator();
+
+    final translation = await translator.translate(
+      textToTranslate,
+      from: 'en',
+      to: 'ru',
+    );
+
+    return translation.text;
+  }
 
   @override
   void initState() {
@@ -80,12 +93,14 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
               );
 
-              if (responseText.isNotEmpty) {
+              String translatedText = await translateToRussian(responseText);
+
+              if (translatedText.isNotEmpty) {
                 // ignore: curly_braces_in_flow_control_structures
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Response: $responseText',
+                    'Response: $translatedText',
                     style: const TextStyle(fontSize: 16),
                   ),
                 );
@@ -112,7 +127,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                   .databaseBuilder('app_database.db')
                   .build();
 
-              final recipe = Recipe(response: 'Ваш текст рецепта');
+              final recipe = Recipe(response: translatedText);
               await database.recipeDao.insertRecipe(recipe);
 
               // Navigate to the next screen

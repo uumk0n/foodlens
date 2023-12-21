@@ -75,24 +75,25 @@ class CameraScreen extends StatelessWidget {
                       ),
                     );
 
+                    String translatedText =
+                        await translateToRussian(responseText);
+                    if (translatedText.isNotEmpty) {
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Response: $translatedText',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      );
+                    }
+
                     // Save to the database on successful image upload
                     final database = await $FloorAppDatabase
                         .databaseBuilder('app_database.db')
                         .build();
 
-                    final recipe = Recipe(response: responseText);
+                    final recipe = Recipe(response: translatedText);
                     await database.recipeDao.insertRecipe(recipe);
-
-                    // Display the response text
-                    if (responseText.isNotEmpty) {
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Response: $responseText',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      );
-                    }
 
                     // Add a link at the bottom
                     GestureDetector(
